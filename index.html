@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>위성 지도 토글</title>
+  <title>위성 지도 + 내 위치 가져오기</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Leaflet CSS -->
@@ -12,25 +12,45 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    html, body {
+    body {
+      font-family: sans-serif;
       margin: 0;
-      padding: 0;
-      height: 100%;
+      padding: 2rem;
+      background: #f4f4f4;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
     }
     #map {
-      height: 90vh;
+      height: 400px;
+      margin-top: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    #location {
-      text-align: center;
-      margin: 10px 0;
+    button {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      border: none;
+      background-color: #0070f3;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .coords {
+      font-size: 1.1rem;
+      margin-top: 1rem;
+      color: #333;
     }
   </style>
 </head>
 <body>
-
-<div id="map"></div>
-<div id="location">위치 정보를 가져오는 중...</div>
-
+  <div class="container">
+    <h2>📍 현재 위치 확인 및 지도 표시</h2>
+    <button id="get-location">📍 내 위치 가져오기</button>
+    <div class="coords" id="location">위치 정보를 가져오는 중...</div>
+    <div id="map"></div>
+  </div>
 <script>
   // 기본 타일 (OpenStreetMap)
   const baseMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -43,9 +63,9 @@
     maxZoom: 18
   });
 
-  // 기본 맵 설정
+  // 맵 초기화
   const map = L.map('map', {
-    center: [37.5665, 126.9780], // 초기 위치 (서울)
+    center: [37.5665, 126.9780],
     zoom: 15,
     layers: [baseMap]
   });
@@ -57,26 +77,41 @@
   };
   L.control.layers(baseLayers).addTo(map);
 
-  // 현재 위치 가져오기
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(position => {
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
+  let marker = null;
 
-      const marker = L.marker([lat, lon]).addTo(map)
-        .bindPopup("현재 위치")
-        .openPopup();
+  function updateLocation(lat, lon) {
+    if (marker) {
+      map.removeLayer(marker);
+    }
+    marker = L.marker([lat, lon]).addTo(map)
+      .bindPopup("현재 위치")
+      .openPopup();
 
-      map.setView([lat, lon], 16);
+    map.setView([lat, lon], 16);
 
-      document.getElementById("location").textContent =
-        `현재 위치: 위도 ${lat.toFixed(6)}, 경도 ${lon.toFixed(6)}`;
-    }, () => {
-      document.getElementById("location").textContent = "위치 접근을 허용해주세요.";
-    });
-  } else {
-    document.getElementById("location").textContent = "이 브라우저에서는 Geolocation을 지원하지 않습니다.";
+    document.getElementById("location").textContent =
+      `현재 위치: 위도 ${lat.toFixed(6)}, 경도 ${lon.toFixed(6)}`;
   }
+
+  function getCurrentLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(position => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        updateLocation(lat, lon);
+      }, () => {
+        document.getElementById("location").textContent = "위치 접근을 허용해주세요.";
+      });
+    } else {
+      document.getElementById("location").textContent = "이 브라우저는 위치 정보를 지원하지 않습니다.";
+    }
+  }
+
+  // 버튼 이벤트
+  document.getElementById("get-location").addEventListener("click", getCurrentLocation);
+
+  // 초기 실행
+  getCurrentLocation();
 </script>
 
 </body>
