@@ -2,45 +2,63 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>현재 위치 확인</title>
+  <title>내 위치 지도에 표시</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-sA+z2MoeuAB+0Zt3kHzW7xZoR+ZV20ckzE2F/NNM9bg="
+    crossorigin=""
+  />
   <style>
     body {
       font-family: sans-serif;
+      margin: 0;
       padding: 2rem;
-      background-color: #f4f4f4;
+      background: #f4f4f4;
     }
-    .card {
-      background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      max-width: 400px;
+    .container {
+      max-width: 800px;
       margin: auto;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    .coords {
-      font-size: 1.2rem;
+    #map {
+      height: 400px;
       margin-top: 1rem;
-      color: #333;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
     button {
       padding: 0.6rem 1.2rem;
       font-size: 1rem;
-      cursor: pointer;
-      border-radius: 8px;
+      border: none;
       background-color: #0070f3;
       color: white;
-      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .coords {
+      font-size: 1.1rem;
+      margin-top: 1rem;
+      color: #333;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>📍 내 위치 가져오기</h2>
+  <div class="container">
+    <h2>📍 현재 위치 확인 및 지도 표시</h2>
     <button onclick="getLocation()">위치 확인</button>
     <div class="coords" id="locationDisplay">위치를 가져오려면 버튼을 누르세요.</div>
+    <div id="map"></div>
   </div>
 
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-o9N1jU78iSKklVX+KrT1tcwLbqL7P3R1zDzmQ3T+Z9E="
+    crossorigin=""
+  ></script>
   <script>
+    let map;
+    let marker;
+
     function getLocation() {
       const display = document.getElementById("locationDisplay");
 
@@ -53,12 +71,24 @@
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const lat = position.coords.latitude.toFixed(6);
-          const lon = position.coords.longitude.toFixed(6);
-          display.textContent = `${lat},${lon}`;
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          display.textContent = `${lat.toFixed(6)},${lon.toFixed(6)}`;
+
+          if (!map) {
+            map = L.map("map").setView([lat, lon], 15);
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+              attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+            }).addTo(map);
+            marker = L.marker([lat, lon]).addTo(map)
+              .bindPopup("📍 현재 위치").openPopup();
+          } else {
+            map.setView([lat, lon], 15);
+            marker.setLatLng([lat, lon]);
+          }
         },
         (error) => {
-          switch(error.code) {
+          switch (error.code) {
             case error.PERMISSION_DENIED:
               display.textContent = "위치 권한이 거부되었습니다.";
               break;
