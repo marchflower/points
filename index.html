@@ -1,46 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>카메라 스트리밍 및 점 선택</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>현재 위치 확인</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background-color: #f4f4f4;
+    }
+    .card {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      max-width: 400px;
+      margin: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .coords {
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      color: #333;
+    }
+    button {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 8px;
+      background-color: #0070f3;
+      color: white;
+      border: none;
+    }
+  </style>
 </head>
 <body>
-    <button class="menu-btn">☰ Menu</button>
-    <div class="sidebar" id="sidebar">
-        <h2><span id="close-menu">Menu</span></h2>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/points">Points</a></li>
-            <li><a href="/map">Map</a></li>
-        </ul>
-    </div>
-    <main>
-        <h1>카메라 스트리밍 및 점 선택</h1>
-        <p>카메라 영상을 실시간으로 확인하고, 화면에서 점을 선택하여 저장할 수 있습니다.</p>
-        <div>
-            <button id="toggle-stream-btn">스트리밍 시작</button>
-            <button id="submit-btn" disabled>점 저장</button>
-        </div>
-        <div id="submit-message" style="height: 20px; line-height: 20px; margin-top: 5px; text-align: center;"></div>
-        <div id="video-container" style="position: relative; display: inline-block;">
-            <img id="video-feed" src="" alt="Camera Stream" style="display: none; width: 100%; max-width: 640px;">
-            <canvas id="overlay-canvas" style="position: absolute; top: 0; left: 0; display: none;"></canvas>
-        </div>
-        <div id="point-data" style="margin-top: 20px;">
-            <table id="point-table" border="1" style="width: 100%; max-width: 640px; text-align: center;">
-                <thead>
-                    <tr>
-                        <th>점 번호</th>
-                        <th>픽셀 좌표 (x, y)</th>
-                        <th>GPS 좌표 (위도, 경도)</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </main>
-    <script src="common.js"></script>
-    <script src="index.js"></script>
+  <div class="card">
+    <h2>📍 내 위치 가져오기</h2>
+    <button onclick="getLocation()">위치 확인</button>
+    <div class="coords" id="locationDisplay">위치를 가져오려면 버튼을 누르세요.</div>
+  </div>
+
+  <script>
+    function getLocation() {
+      const display = document.getElementById("locationDisplay");
+
+      if (!navigator.geolocation) {
+        display.textContent = "이 브라우저에서는 Geolocation이 지원되지 않습니다.";
+        return;
+      }
+
+      display.textContent = "위치를 가져오는 중...";
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude.toFixed(6);
+          const lon = position.coords.longitude.toFixed(6);
+          display.textContent = `🌍 위도: ${lat}, 경도: ${lon}`;
+        },
+        (error) => {
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              display.textContent = "위치 권한이 거부되었습니다.";
+              break;
+            case error.POSITION_UNAVAILABLE:
+              display.textContent = "위치 정보를 사용할 수 없습니다.";
+              break;
+            case error.TIMEOUT:
+              display.textContent = "위치 요청 시간이 초과되었습니다.";
+              break;
+            default:
+              display.textContent = "알 수 없는 오류가 발생했습니다.";
+              break;
+          }
+        }
+      );
+    }
+  </script>
 </body>
 </html>
