@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>카메라 스트리밍 및 점 선택</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <button class="menu-btn">☰ Menu</button>
+    <div class="sidebar" id="sidebar">
+        <h2><span id="close-menu">Menu</span></h2>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/points">Points</a></li>
+            <li><a href="/map">Map</a></li>
+        </ul>
+    </div>
+    <main>
+        <h1>카메라 스트리밍 및 점 선택</h1>
+        <p>카메라 영상을 실시간으로 확인하고, 화면에서 점을 선택하여 저장할 수 있습니다.</p>
+        <div>
+            <button id="toggle-stream-btn">스트리밍 시작</button>
+            <button id="submit-btn" disabled>점 저장</button>
+        </div>
+        <div id="submit-message" style="height: 20px; line-height: 20px; margin-top: 5px; text-align: center;"></div>
+        <div id="video-container" style="position: relative; display: inline-block;">
+            <img id="video-feed" src="" alt="Camera Stream" style="display: none; width: 100%; max-width: 640px;">
+            <canvas id="overlay-canvas" style="position: absolute; top: 0; left: 0; display: none;"></canvas>
+        </div>
+        <div id="point-data" style="margin-top: 20px;">
+            <table id="point-table" border="1" style="width: 100%; max-width: 640px; text-align: center;">
+                <thead>
+                    <tr>
+                        <th>점 번호</th>
+                        <th>픽셀 좌표 (x, y)</th>
+                        <th>GPS 좌표 (위도, 경도)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </main>
+    <script src="common.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>
