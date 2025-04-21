@@ -1,0 +1,112 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+}
+
+.sidebar {
+    width: 200px;
+    background-color: #333;
+    color: white;
+    height: 100vh;
+    position: fixed;
+    padding: 20px;
+    box-sizing: border-box;
+    transition: transform 0.3s ease;
+    z-index: 1000; /* 최상위에 오버랩되도록 설정 */
+}
+
+.sidebar h2 {
+    margin: 0 0 20px 0;
+    font-size: 1.5em;
+}
+
+.sidebar #close-menu {
+    cursor: pointer;
+}
+
+.sidebar #close-menu:hover {
+    color: #ddd;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin: 10px 0;
+}
+
+.sidebar ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+.sidebar ul li a:hover {
+    text-decoration: underline;
+}
+
+main {
+    margin-left: 220px;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+h1 {
+    color: #333;
+}
+
+.menu-btn {
+    display: none;
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 1.2em;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+}
+
+@media (max-width: 768px) {
+    .menu-btn {
+        display: block;
+    }
+
+    .sidebar {
+        width: 200px;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        transform: translateX(-100%);
+        z-index: 1000; /* 모바일에서도 최상위 유지 */
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .sidebar ul {
+        display: block;
+    }
+
+    main {
+        margin-left: 0;
+        padding: 10px;
+    }
+}
+
+/* 캔버스 스타일 */
+#video-container {
+    position: relative;
+    display: inline-block;
+}
+
+#overlay-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: auto; /* 클릭 이벤트 허용 */
+}
