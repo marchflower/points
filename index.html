@@ -55,7 +55,7 @@
         (position) => {
           const lat = position.coords.latitude.toFixed(6);
           const lon = position.coords.longitude.toFixed(6);
-          display.textContent = `🌍 위도: ${lat}, 경도: ${lon}`;
+          display.textContent = `${lat},${lon}`;
         },
         (error) => {
           switch(error.code) {
