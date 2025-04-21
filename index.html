@@ -1,110 +1,83 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>내 위치 지도에 표시</title>
-  <!-- 🔥 integrity 제거됨 -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    crossorigin=""
-  />
+  <meta charset="UTF-8" />
+  <title>위성 지도 토글</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <style>
-    body {
-      font-family: sans-serif;
+    html, body {
       margin: 0;
-      padding: 2rem;
-      background: #f4f4f4;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
+      padding: 0;
+      height: 100%;
     }
     #map {
-      height: 400px;
-      margin-top: 1rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      height: 90vh;
     }
-    button {
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      border: none;
-      background-color: #0070f3;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .coords {
-      font-size: 1.1rem;
-      margin-top: 1rem;
-      color: #333;
+    #location {
+      text-align: center;
+      margin: 10px 0;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>📍 현재 위치 확인 및 지도 표시</h2>
-    <button onclick="getLocation()">위치 확인</button>
-    <div class="coords" id="locationDisplay">위치를 가져오려면 버튼을 누르세요.</div>
-    <div id="map"></div>
-  </div>
 
-  <!-- 🔥 integrity 제거됨 -->
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    crossorigin=""
-  ></script>
-  <script>
-    let map;
-    let marker;
+<div id="map"></div>
+<div id="location">위치 정보를 가져오는 중...</div>
 
-    function getLocation() {
-      const display = document.getElementById("locationDisplay");
+<script>
+  // 기본 타일 (OpenStreetMap)
+  const baseMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  });
 
-      if (!navigator.geolocation) {
-        display.textContent = "이 브라우저에서는 Geolocation이 지원되지 않습니다.";
-        return;
-      }
+  // 위성 타일 (ESRI Satellite)
+  const satelliteMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics',
+    maxZoom: 18
+  });
 
-      display.textContent = "위치를 가져오는 중...";
+  // 기본 맵 설정
+  const map = L.map('map', {
+    center: [37.5665, 126.9780], // 초기 위치 (서울)
+    zoom: 15,
+    layers: [baseMap]
+  });
 
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          display.textContent = `${lat.toFixed(6)},${lon.toFixed(6)}`;
+  // 지도 토글 컨트롤
+  const baseLayers = {
+    "기본 지도": baseMap,
+    "위성 지도": satelliteMap
+  };
+  L.control.layers(baseLayers).addTo(map);
 
-          if (!map) {
-            map = L.map("map").setView([lat, lon], 15);
-            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-              attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
-            }).addTo(map);
-            marker = L.marker([lat, lon]).addTo(map)
-              .bindPopup("📍 현재 위치").openPopup();
-          } else {
-            map.setView([lat, lon], 15);
-            marker.setLatLng([lat, lon]);
-          }
-        },
-        (error) => {
-          switch (error.code) {
-            case error.PERMISSION_DENIED:
-              display.textContent = "위치 권한이 거부되었습니다.";
-              break;
-            case error.POSITION_UNAVAILABLE:
-              display.textContent = "위치 정보를 사용할 수 없습니다.";
-              break;
-            case error.TIMEOUT:
-              display.textContent = "위치 요청 시간이 초과되었습니다.";
-              break;
-            default:
-              display.textContent = "알 수 없는 오류가 발생했습니다.";
-              break;
-          }
-        }
-      );
-    }
-  </script>
+  // 현재 위치 가져오기
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(position => {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+
+      const marker = L.marker([lat, lon]).addTo(map)
+        .bindPopup("현재 위치")
+        .openPopup();
+
+      map.setView([lat, lon], 16);
+
+      document.getElementById("location").textContent =
+        `현재 위치: 위도 ${lat.toFixed(6)}, 경도 ${lon.toFixed(6)}`;
+    }, () => {
+      document.getElementById("location").textContent = "위치 접근을 허용해주세요.";
+    });
+  } else {
+    document.getElementById("location").textContent = "이 브라우저에서는 Geolocation을 지원하지 않습니다.";
+  }
+</script>
+
 </body>
 </html>
